@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BTNotifier</string>
+    <string name="device_name">HC-05</string>
+    
+    <string name="explanation">Bu uygulama NachNuch bluetooth cihazları ile kullanılmak üzere hazırlanmıştır.</string>
+	<string name="serviceOff">Şu anda uyarı servisi çalışmıyor. Başlatmak için önce NachNuch buletooth cihazınızı açın, daha sonra aşağıdaki Başlat düğmesine basın.</string>
+	<string name="serviceOn">Uyarı servisi halen çalışıyor. durdurmak için aşağıdaki Durdur düğmesine basın.</string>
+	<string name="button_serviceOn">Durdur</string>
+	<string name="button_serviceOff">Başlat</string>
+	
+</resources>

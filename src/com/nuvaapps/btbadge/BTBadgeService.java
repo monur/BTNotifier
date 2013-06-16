@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 public class BTBadgeService extends Service {
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Toast.makeText(getApplicationContext(), "Yeahhh", Toast.LENGTH_SHORT).show();
@@ -17,5 +16,6 @@ public class BTBadgeService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
+	
 
 }

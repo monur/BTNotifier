@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">BTBadge</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-
+	<string name="app_name">BTNotifier</string>
+    <string name="device_name">HC-05</string>
+    
+    <string name="explanation">This app is to use with proper NachNuch bluetooth devices.</string>
+	<string name="serviceOff">Notification service is not running. If you want to start the notification service, first turn on your NachNuch bluetooth device and then tap the Start button below.</string>
+	<string name="serviceOn">Notification service is running. Tap Stop to finish the service.</string>
+	<string name="button_serviceOn">Stop</string>
+	<string name="button_serviceOff">Start</string>
 </resources>
