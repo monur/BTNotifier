@@ -8,5 +8,8 @@
 	<string name="serviceOn">Uyarı servisi halen çalışıyor. durdurmak için aşağıdaki Durdur düğmesine basın.</string>
 	<string name="button_serviceOn">Durdur</string>
 	<string name="button_serviceOff">Başlat</string>
+	<string name="deviceFound">NachNuch bluetooth cihazı bulundu ve eşleştirildi.</string>
+	<string name="bluetoothDisabled">Bluetooth etkinleştirilmeden devam edilemez.</string>
+	<string name="noBluetooth">Bu cihazda bluetooth bulunmamakta</string>
 	
 </resources>

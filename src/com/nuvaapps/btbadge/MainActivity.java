@@ -19,6 +19,7 @@ import android.content.IntentFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +29,8 @@ public class MainActivity extends Activity {
 	BluetoothDevice device = null;
 	BluetoothSocket socket = null;
 	boolean on = false;
-	Intent serviceIntent = new Intent(getApplicationContext(), BTBadgeService.class);
+	boolean deviceFound = false;
+	Intent serviceIntent = null;
 	
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 	    public void onReceive(Context context, Intent intent) {
@@ -38,8 +40,10 @@ public class MainActivity extends Activity {
 	            Log.w("DEVICE::::", tmpDevice.getName());
 	            if(tmpDevice.getName().equals(getString(R.string.device_name))){
 	            	device = tmpDevice;
-	            	connectBluetoothDevice(device);
 	            	mBluetoothAdapter.cancelDiscovery();
+	            	Toast.makeText(context, R.string.deviceFound, Toast.LENGTH_SHORT).show();
+	            	if(connectBluetoothDevice(device))
+	            		setAlarm();
 	            }
 	        }
 	    }
@@ -52,6 +56,10 @@ public class MainActivity extends Activity {
 	private void refreshUI(){
 		Button button = (Button)findViewById(R.id.button1);
 		TextView textView = (TextView)findViewById(R.id.TextView01);
+		final ProgressBar bar = (ProgressBar)findViewById(R.id.progressBar1);
+		bar.setVisibility(View.INVISIBLE);
+		button.setVisibility(View.VISIBLE);
+		Log.w("Service is running:", String.valueOf(isServiceRunning()));
 		if(isServiceRunning()){
 			textView.setText(R.string.serviceOn);
 			button.setText(R.string.button_serviceOn);
@@ -67,6 +75,8 @@ public class MainActivity extends Activity {
 			button.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					v.setVisibility(View.INVISIBLE);
+					bar.setVisibility(View.VISIBLE);
 					startService();
 				}
 			});
@@ -77,7 +87,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		serviceIntent = new Intent(getApplicationContext(), BTBadgeService.class);
+		refreshUI();
 		/*
 		Button button2 = (Button)findViewById(R.id.button2);
 		button2.setOnClickListener(new View.OnClickListener() {
@@ -102,20 +113,6 @@ public class MainActivity extends Activity {
 		*/
 	}
 	
-	private void startNotifier(){
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		if (mBluetoothAdapter == null) {
-			Toast.makeText(this, "This device doens'nt have a bluetooth adapter", Toast.LENGTH_LONG).show();
-			return;
-		}
-		if (!mBluetoothAdapter.isEnabled()) {
-		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-		}else{
-			onActivityResult(REQUEST_ENABLE_BT, RESULT_OK, null);
-		}
-	}
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == REQUEST_ENABLE_BT){
@@ -125,8 +122,9 @@ public class MainActivity extends Activity {
 				    for (BluetoothDevice device : pairedDevices) {
 				        if(device.getName().equals(getString(R.string.device_name))){
 				        	this.device = device;
+				    		setAlarm();
 				        	//Log.w("UUID:::", device.getUuids()[0].toString());
-				        	connectBluetoothDevice(device);
+				        	//connectBluetoothDevice(device);
 				        }
 				    }
 				}
@@ -136,20 +134,23 @@ public class MainActivity extends Activity {
 					mBluetoothAdapter.startDiscovery();
 				}
 			}else{
-				Toast.makeText(this, "Bluetooth not enabled, cannot continue", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, R.string.bluetoothDisabled, Toast.LENGTH_LONG).show();
+				refreshUI();
 			}
 		}
 	}
 	
-	private void connectBluetoothDevice(BluetoothDevice device){
+	private boolean connectBluetoothDevice(BluetoothDevice device){
+		//This method is called when the device is not yet paired, so
+		//starting an initial connection for pairing
         try {
-            //socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"));
             //WTF is this?
         	Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
             socket = (BluetoothSocket) m.invoke(device, 1);
             Log.w("", "SOCKET found");
             socket.connect();
             Log.w("", "SOCKET connected");
+            return true;
         } catch (IOException e) { 
         	Log.e("", "", e);
         } catch (NoSuchMethodException e) {
@@ -161,15 +162,24 @@ public class MainActivity extends Activity {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
+        return false;
 	}
 	
 	private void startService(){
-		
-		PendingIntent pii = PendingIntent.getService(getApplicationContext(), 2222, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.setRepeating(AlarmManager.RTC_WAKEUP, 0, 15000, pii);
-		//Intent service = new Intent(this.getBaseContext(), BTBadgeService.class);
-		//startService(service);
+		//First check if bluetooth adapter is present
+		deviceFound = false;
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, R.string.noBluetooth, Toast.LENGTH_LONG).show();
+			return;
+		}
+		//Now check if bluetooth is enabled, try to enable if not
+		if (!mBluetoothAdapter.isEnabled()) {
+		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+		}else{ // if already enabled
+			onActivityResult(REQUEST_ENABLE_BT, RESULT_OK, null);
+		}
 	}
 	
 	private void stopService(){
@@ -179,14 +189,19 @@ public class MainActivity extends Activity {
 		refreshUI();
 	}
 	
+	private void setAlarm(){
+		PendingIntent pii = PendingIntent.getService(getApplicationContext(), 2222, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.setRepeating(AlarmManager.RTC_WAKEUP, 0, 15000, pii);
+	}
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		try{
 			unregisterReceiver(mReceiver);
 		}catch(IllegalArgumentException e){
-			Log.e("", "", e);
+			Log.e("", "Illegal Argument Exception on unregisterReceiver...");
 		}
 	}
-
 }
