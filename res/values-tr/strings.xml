@@ -11,5 +11,6 @@
 	<string name="deviceFound">NachNuch bluetooth cihazı bulundu ve eşleştirildi.</string>
 	<string name="bluetoothDisabled">Bluetooth etkinleştirilmeden devam edilemez.</string>
 	<string name="noBluetooth">Bu cihazda bluetooth bulunmamakta</string>
+	<string name="noConnectionToDevice">NachNuch cihazına bağlanılamadı. Cihazın açık olduğundan emin olun.</string>
 	
 </resources>

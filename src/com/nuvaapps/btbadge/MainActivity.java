@@ -29,7 +29,6 @@ public class MainActivity extends Activity {
 	BluetoothDevice device = null;
 	BluetoothSocket socket = null;
 	boolean on = false;
-	boolean deviceFound = false;
 	Intent serviceIntent = null;
 	
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -48,10 +47,6 @@ public class MainActivity extends Activity {
 	        }
 	    }
 	};
-	
-	private boolean isServiceRunning(){
-		return (PendingIntent.getBroadcast(getBaseContext(), 0, serviceIntent, PendingIntent.FLAG_NO_CREATE) != null);
-	}
 	
 	private void refreshUI(){
 		Button button = (Button)findViewById(R.id.button1);
@@ -89,28 +84,6 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		serviceIntent = new Intent(getApplicationContext(), BTBadgeService.class);
 		refreshUI();
-		/*
-		Button button2 = (Button)findViewById(R.id.button2);
-		button2.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				if(socket!=null){
-					try {
-						//socket.connect();
-						//Log.w("", "SOCKET connected");
-						if(on)
-							socket.getOutputStream().write('0');
-						else
-							socket.getOutputStream().write('1');
-						Log.w("", "OUTPUT written");
-						on = !on;
-					} catch (IOException e) {
-						Log.e("", "", e);
-					}
-				}
-			}
-		});
-		*/
 	}
 	
 	@Override
@@ -122,9 +95,9 @@ public class MainActivity extends Activity {
 				    for (BluetoothDevice device : pairedDevices) {
 				        if(device.getName().equals(getString(R.string.device_name))){
 				        	this.device = device;
-				    		setAlarm();
-				        	//Log.w("UUID:::", device.getUuids()[0].toString());
-				        	//connectBluetoothDevice(device);
+				    		Log.w("", "NachNuch device found in paired devices list");
+				        	if(connectBluetoothDevice(device))
+				        		setAlarm();
 				        }
 				    }
 				}
@@ -150,24 +123,25 @@ public class MainActivity extends Activity {
             Log.w("", "SOCKET found");
             socket.connect();
             Log.w("", "SOCKET connected");
+            socket.close();
             return true;
         } catch (IOException e) { 
-        	Log.e("", "", e);
+        	Log.e("", "Cannot connect to device");
         } catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			Log.e("", "", e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Log.e("", "", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Log.e("", "", e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			Log.e("", "", e);
 		}
+		Toast.makeText(this, R.string.noConnectionToDevice, Toast.LENGTH_LONG).show();
         return false;
 	}
 	
 	private void startService(){
 		//First check if bluetooth adapter is present
-		deviceFound = false;
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBluetoothAdapter == null) {
 			Toast.makeText(this, R.string.noBluetooth, Toast.LENGTH_LONG).show();
@@ -186,14 +160,19 @@ public class MainActivity extends Activity {
 		PendingIntent pii = PendingIntent.getService(getApplicationContext(), 2222, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.cancel(pii);
+		setServiceRunning(false);
 		refreshUI();
 	}
 	
 	private void setAlarm(){
+		serviceIntent.putExtra("device", device);
 		PendingIntent pii = PendingIntent.getService(getApplicationContext(), 2222, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.setRepeating(AlarmManager.RTC_WAKEUP, 0, 15000, pii);
+		setServiceRunning(true);
+		refreshUI();
 	}
+	
 	
 	@Override
 	protected void onDestroy() {
@@ -203,5 +182,13 @@ public class MainActivity extends Activity {
 		}catch(IllegalArgumentException e){
 			Log.e("", "Illegal Argument Exception on unregisterReceiver...");
 		}
+	}
+
+	public boolean isServiceRunning(){
+		return getSharedPreferences(getResources().getString(R.string.app_name), 1).getBoolean("serviceRunning", false);
+	}
+	
+	public void setServiceRunning(boolean serviceRunning) {
+		getSharedPreferences(getResources().getString(R.string.app_name), 1).edit().putBoolean("serviceRunning", serviceRunning).commit();
 	}
 }

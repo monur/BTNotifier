@@ -41,6 +41,7 @@ public final class R {
         public static final int device_name=0x7f050001;
         public static final int explanation=0x7f050002;
         public static final int noBluetooth=0x7f050009;
+        public static final int noConnectionToDevice=0x7f05000a;
         public static final int serviceOff=0x7f050003;
         public static final int serviceOn=0x7f050004;
     }
