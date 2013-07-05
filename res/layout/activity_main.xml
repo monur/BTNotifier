@@ -49,4 +49,14 @@
         android:layout_centerHorizontal="true"
         android:visibility="invisible" />
 
+    <Button
+        android:id="@+id/buttonTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="21dp"
+        android:text="@string/button_test"
+        android:textSize="30sp" />
+
 </RelativeLayout>

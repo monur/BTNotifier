@@ -26,6 +26,7 @@ public final class R {
     public static final class id {
         public static final int TextView01=0x7f070001;
         public static final int button1=0x7f070002;
+        public static final int buttonTest=0x7f070004;
         public static final int progressBar1=0x7f070003;
         public static final int textView1=0x7f070000;
     }
@@ -34,14 +35,15 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f050000;
-        public static final int bluetoothDisabled=0x7f050008;
+        public static final int bluetoothDisabled=0x7f050009;
         public static final int button_serviceOff=0x7f050006;
         public static final int button_serviceOn=0x7f050005;
-        public static final int deviceFound=0x7f050007;
+        public static final int button_test=0x7f050007;
+        public static final int deviceFound=0x7f050008;
         public static final int device_name=0x7f050001;
         public static final int explanation=0x7f050002;
-        public static final int noBluetooth=0x7f050009;
-        public static final int noConnectionToDevice=0x7f05000a;
+        public static final int noBluetooth=0x7f05000a;
+        public static final int noConnectionToDevice=0x7f05000b;
         public static final int serviceOff=0x7f050003;
         public static final int serviceOn=0x7f050004;
     }

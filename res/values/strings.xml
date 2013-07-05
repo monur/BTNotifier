@@ -8,6 +8,7 @@
 	<string name="serviceOn">Notification service is running. Tap Stop to finish the service.</string>
 	<string name="button_serviceOn">Stop</string>
 	<string name="button_serviceOff">Start</string>
+	<string name="button_test">Test Device</string>
 	<string name="deviceFound">NachNuch device found and paired.</string>
 	<string name="bluetoothDisabled">Bluetooth not enabled, cannot continue</string>
 	<string name="noBluetooth">This device doensn\'t have a bluetooth adapter.</string>

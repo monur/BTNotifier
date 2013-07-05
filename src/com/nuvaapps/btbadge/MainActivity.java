@@ -50,12 +50,14 @@ public class MainActivity extends Activity {
 	
 	private void refreshUI(){
 		Button button = (Button)findViewById(R.id.button1);
+		Button testButton = (Button)findViewById(R.id.buttonTest);
 		TextView textView = (TextView)findViewById(R.id.TextView01);
 		final ProgressBar bar = (ProgressBar)findViewById(R.id.progressBar1);
 		bar.setVisibility(View.INVISIBLE);
 		button.setVisibility(View.VISIBLE);
 		Log.w("Service is running:", String.valueOf(isServiceRunning()));
 		if(isServiceRunning()){
+			testButton.setVisibility(View.VISIBLE);
 			textView.setText(R.string.serviceOn);
 			button.setText(R.string.button_serviceOn);
 			button.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +67,7 @@ public class MainActivity extends Activity {
 				}
 			});
 		}else{
+			testButton.setVisibility(View.INVISIBLE);
 			textView.setText(R.string.serviceOff);
 			button.setText(R.string.button_serviceOff);
 			button.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +86,15 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		serviceIntent = new Intent(getApplicationContext(), BTBadgeService.class);
+		Button testButton = (Button)findViewById(R.id.buttonTest);
+		testButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				BluetoothFunctions func = new BluetoothFunctions(device);
+				byte[] bytesTest = {0x00, -0x76, 0x0A, -0x76, 0x64, -1};
+				func.send(bytesTest);
+			}
+		});
 		refreshUI();
 	}
 	

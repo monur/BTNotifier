@@ -1,12 +1,9 @@
 package com.nuvaapps.btbadge;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Date;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.IBinder;
@@ -14,8 +11,7 @@ import android.provider.CallLog;
 import android.util.Log;
 
 public class BTBadgeService extends Service {
-	private BluetoothSocket socket;
-	
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		try{
@@ -42,23 +38,13 @@ public class BTBadgeService extends Service {
 		      cur.close();
 		    }
 			BluetoothDevice device = intent.getParcelableExtra("device");
-			//WTF is this?
-	    	Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-	        socket = (BluetoothSocket) m.invoke(device, 1);
-			if(socket!=null){
-				try {
-					socket.connect();
-					Log.w("", "SOCKET connected");
-					if(cursorSize > 0)
-						socket.getOutputStream().write('1');
-					else
-						socket.getOutputStream().write('0');
-					socket.close();
-					Log.w("", "OUTPUT written");
-				} catch (IOException e) {
-					Log.e("", "", e);
-				}
-			}
+			BluetoothFunctions func = new BluetoothFunctions(device);
+			byte[] bytesOn = {0x00, -0x76, 0x0A, -0x76, 0x64, -1};
+			byte[] bytesOff = {0x00, -1};
+			if(cursorSize > 0)
+				func.send(bytesOn);
+			else
+				func.send(bytesOff);
 		}catch(Exception e){
 			Log.e("", "", e);
 		}
@@ -69,6 +55,5 @@ public class BTBadgeService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
-	
 
 }
